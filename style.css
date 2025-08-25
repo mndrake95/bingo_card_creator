@@ -1,0 +1,45 @@
+/* Общие стили для страницы, чтобы карточка была по центру */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px; /* Добавим отступ, чтобы карточка не прилипала к краям */
+    background-color: #f0f0f0; /* Слегка серый фон для страницы */
+    box-sizing: border-box;
+}
+
+/* Контейнер для всей карточки бинго */
+.bingo-card {
+    width: 396px;
+    height: 396px;
+    background-color: #FFB200; 
+    
+    /* Используем Grid для создания идеальной сетки 5x5 */
+    display: grid;
+    /* 5 колонок по 72px и 5 рядов по 72px */
+    grid-template-columns: repeat(5, 72px);
+    grid-template-rows: repeat(5, 72px);
+    
+    /* Расстояние между ячейками. */
+    gap: 3px;
+    
+    /* Выравниваем сетку по центру, если контейнер вдруг станет больше */
+    justify-content: center;
+    align-content: center;
+
+    
+}
+
+/* Стиль для каждой отдельной ячейки */
+.cell {
+    background-color: #ffffff; /* Белый фон для ячеек */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
