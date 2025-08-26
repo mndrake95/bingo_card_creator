@@ -6,105 +6,9 @@ import tkinter as tk  # Библиотека для создания графи�
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
 
 
+
 # Основная функция, которая запускается при нажатии на кнопку
 def create_bingo_files():
-    # --- CSS-стили ---
-    css_styles = """
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 20px;
-        font-family: 'Arial', sans-serif;
-        box-sizing: border-box;
-    }
-
-    /* Главный контейнер всей карточки */
-    .whole-card {
-        width: 420px;
-        background-image: url(../assets/background1.jpg); 
-        background-size: cover; 
-        background-position: center; 
-        position: relative; 
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-    
-    /* --- Шапка --- */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 15px;
-    }
-    .rules-container {
-        display: flex;
-        gap: 5px;
-    }
-    .rule-box {
-        width: 70px;
-        height: 80px;
-        border: 2px solid red; /* Пример рамки */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-weight: bold;
-    }
-    .logo {
-        width: 88px;
-        height: auto;
-    }
-    .tour-number {
-        color: white;
-        font-weight: bold;
-        font-size: 20px;
-    }
-
-    /* --- Основная сетка --- */
-    .main-grid {
-        background-color: #FFB200;
-        padding: 12px;
-    }
-    .bingo-card {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(5, 1fr);
-        gap: 3px;
-    }
-    .cell {
-        background-color: #ffffff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 12px;
-        font-weight: bold;
-        color: #333;
-        text-align: center;
-        padding: 5px;
-        aspect-ratio: 1 / 1; /* Делает ячейки квадратными */
-    }
-
-    /* --- Подвал --- */
-    .footer {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 15px;
-    }
-    .footer-item {
-        text-align: center;
-        color: white;
-        font-size: 10px;
-    }
-    .qr-code {
-        width: 70px;
-        height: 70px;
-    }
-    """
     # --- 1. Получение и проверка данных из полей ввода ---
 
     try:
@@ -158,14 +62,14 @@ def create_bingo_files():
         # Генерируем список из 25 HTML-ячеек (<div>)
         bingo_cells = [hg.DIV(word, _class="cell") for word in card_layout]
 
-        # --- 4. Создание HTML-структуры (исправлено) ---
+        # --- 4. Создание HTML-структуры ---
         bingo_cells = [hg.DIV(word, _class="cell") for word in card_layout]
 
         page_layout = hg.HTML(
             hg.HEAD(
                 hg.META(charset="utf-8"),
                 hg.TITLE("Bingo Card"),
-                hg.STYLE(css_styles)
+                hg.LINK(rel="stylesheet", href="../style.css")
             ),
             hg.BODY(
                 # Главный контейнер, внутри которого лежат все 3 блока
@@ -173,9 +77,9 @@ def create_bingo_files():
                     # Блок 1: Шапка
                     hg.DIV(
                         hg.DIV(
-                            hg.DIV("МузЛо", _class="rule-box"),
-                            hg.DIV("МузЛо", _class="rule-box"),
-                            hg.DIV("МузЛо", _class="rule-box"),
+                            hg.IMG(src="../assets/музло1.png", _class="rule-box"),
+                            hg.IMG(src="../assets/музло2.png", _class="rule-box"),
+                            hg.IMG(src="../assets/музло3.png", _class="rule-box"),
                             _class="rules-container"
                         ),
                         hg.IMG(src="../assets/logo.png", _class="logo"),
