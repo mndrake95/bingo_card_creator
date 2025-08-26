@@ -24,7 +24,7 @@ def create_bingo_files():
     /* Главный контейнер всей карточки */
     .whole-card {
         width: 420px;
-        background-image: url('../assets/background1.jpg'); 
+        background-image: url(../assets/background1.jpg); 
         background-size: cover; 
         background-position: center; 
         position: relative; 
