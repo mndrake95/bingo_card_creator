@@ -5,7 +5,8 @@ from pathlib import Path  # Модуль для удобной работы с �
 import tkinter as tk  # Библиотека для создания графического интерфейса
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
 
-
+round_images = ["../assets/round1.png", "../assets/round2.png", "../assets/round3.png"]
+background_images = ["../assets/background1.png", "../assets/background2.png", "../assets/background3.png"]
 
 # Основная функция, которая запускается при нажатии на кнопку
 def create_bingo_files():
@@ -42,7 +43,7 @@ def create_bingo_files():
     generated_cards = set()
 
     # --- 3. Основной цикл генерации карточек ---
-    while len(generated_cards) < number_of_copies:
+    for i in range(number_of_copies):
         # Создаем копию исходного списка, чтобы не изменять его
         words_to_shuffle = source_words.copy()
         # Перемешиваем фразы в случайном порядке
@@ -65,6 +66,9 @@ def create_bingo_files():
         # --- 4. Создание HTML-структуры ---
         bingo_cells = [hg.DIV(word, _class="cell") for word in card_layout]
 
+        current_background = background_images[i]
+        inline_style = f"background-image: url('{current_background}');"
+
         page_layout = hg.HTML(
             hg.HEAD(
                 hg.META(charset="utf-8"),
@@ -77,13 +81,11 @@ def create_bingo_files():
                     # Блок 1: Шапка
                     hg.DIV(
                         hg.DIV(
-                            hg.IMG(src="../assets/музло1.png", _class="rule-box"),
-                            hg.IMG(src="../assets/музло2.png", _class="rule-box"),
-                            hg.IMG(src="../assets/музло3.png", _class="rule-box"),
+                            hg.IMG(src="../assets/rules.png", _class="rule-container"),
                             _class="rules-container"
                         ),
                         hg.IMG(src="../assets/logo.png", _class="logo"),
-                        hg.DIV("ТУР №1", _class="tour-number"),
+                        hg.IMG(src=round_images[i], _class="tour-number"),
                         _class="header"
                     ),
 
@@ -96,22 +98,20 @@ def create_bingo_files():
                     # Блок 3: Подвал
                     hg.DIV(
                         hg.DIV(
-                            hg.IMG(src="../assets/qr-code.png", _class="qr-code"),
-                            hg.P("QR МУЗЛО"),
-                            _class="footer-item"
+                            hg.IMG(src="../assets/qr-code-stdup.png", _class="qr-code-stdup"),
+                            _class="qr-code-stdup"
                         ),
                         hg.DIV(
-                            hg.P("Контакты"),
-                            _class="footer-item"
+                            hg.IMG(src="../assets/contacts.png", _class="footer-contacts"),
+                            _class="footer-contacts"
                         ),
                         hg.DIV(
-                            hg.IMG(src="../assets/qr-code.png", _class="qr-code"),
-                            hg.P("QR STANDUP"),
-                            _class="footer-item"
+                            hg.IMG(src="../assets/qr-code-muz.png", _class="qr-code-muz"),
+                            _class="qr-code-muz"
                         ),
                         _class="footer"
                     ),
-                    _class="whole-card"
+                    _class="whole-card", _style=inline_style
                 )
             )
         )
