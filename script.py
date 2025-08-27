@@ -1,4 +1,3 @@
-import htmlgenerator as hg  # Библиотека для генерации HTML-кода
 import os  # Модуль для взаимодействия с операционной системой (создание папок)
 import random  # Модуль для перемешивания элементов
 from pathlib import Path  # Модуль для удобной работы с путями к файлам
@@ -24,56 +23,50 @@ def _build_card_html(layout, round_image_path, background_image_path):
     Возвращает:
         str: Готовая HTML-строка для карточки.
     """
-    bingo_cells = [hg.DIV(word, _class="cell") for word in layout]
-    inline_style = f"background-image: url('{background_image_path}');"
+    cells_html_list = []
+    for word in layout:
+        cells_html_list.append(f'<div class="cell">{word}</div>')
+    all_cells_html = "".join(cells_html_list)
 
-    page_layout = hg.HTML(
-            hg.HEAD(
-                hg.META(charset="utf-8"),
-                hg.TITLE("Bingo Card"),
-                hg.LINK(rel="stylesheet", href="../style.css")
-            ),
-            hg.BODY(
-                # Главный контейнер, внутри которого лежат все 3 блока
-                hg.DIV(
-                    # Блок 1: Шапка
-                    hg.DIV(
-                        hg.DIV(
-                            hg.IMG(src="../assets/rules.png", _class="rule-container"),
-                            _class="rules-container"
-                        ),
-                        hg.IMG(src="../assets/logo.png", _class="logo"),
-                        hg.IMG(src=round_image_path, _class="tour-number"),
-                        _class="header"
-                    ),
+    final_html = f"""
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title> Карточка бинго </title>
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div class="whole-card" style="background-image: url('{background_image_path}');">
+            
+            <div class="header">
+                <img src="../assets/rules.png" class="rules">
+                <img src="../assets/logo.png" class="logo">
+                <img src="{round_image_path}" class="tour-number">
+            </div>
 
-                    # Блок 2: Основная сетка
-                    hg.DIV(
-                        hg.DIV(*bingo_cells, _class="bingo-card"),
-                        _class="main-grid"
-                    ),
+            <div class="main-grid">
+                <div class="bingo-card">
+                    {all_cells_html}
+                </div>
+            </div>
 
-                    # Блок 3: Подвал
-                    hg.DIV(
-                        hg.DIV(
-                            hg.IMG(src="../assets/qr-code-stdup.png", _class="qr-code-stdup"),
-                            _class="qr-code-stdup"
-                        ),
-                        hg.DIV(
-                            hg.IMG(src="../assets/contacts.png", _class="footer-contacts"),
-                            _class="footer-contacts"
-                        ),
-                        hg.DIV(
-                            hg.IMG(src="../assets/qr-code-muz.png", _class="qr-code-muz"),
-                            _class="qr-code-muz"
-                        ),
-                        _class="footer"
-                    ),
-                    _class="whole-card", _style=inline_style
-                )
-            )
-        )
-    return hg.render(page_layout, {})
+            <div class="footer">
+                <div class="qr-code-stdup">
+                    <img src="../assets/qr-code-stdup.png">
+                </div>
+                <div class="footer-contacts">
+                    <img src="../assets/contacts.png">
+                </div>
+                <div class="qr-code-muz">
+                    <img src="../assets/qr-code-muz.png">
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return final_html
 
 def _get_user_inputs():
     """
