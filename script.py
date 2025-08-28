@@ -2,7 +2,8 @@ import os  # Модуль для взаимодействия с операци�
 import random  # Модуль для перемешивания элементов
 from pathlib import Path  # Модуль для удобной работы с путями к файлам
 import re  # Модуль для работы с регулярными выражениями
-import tkinter as tk  # Библиотека для создания графического интерфейса
+import tkinter as tk 
+from tkinter import Entry # Библиотека для создания графического интерфейса
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
 
 # --- Глобальные переменные и константы ---
@@ -91,7 +92,7 @@ def _get_user_inputs():
         return None
 
     words_raw = text_words.get("1.0", tk.END)
-    source_words = re.findall(r"[^,\s]+", words_raw)
+    source_words = re.findall(r"\n", words_raw)
     if len(source_words) != 25:
         messagebox.showwarning("Внимание", f"Нужно ровно 25 фраз, а вы ввели {len(source_words)}.")
         return None
@@ -173,10 +174,22 @@ def create_bingo_files():
         # 5. Сообщение об успешном завершении
         messagebox.showinfo("Готово", f"Успешно создано {number_of_copies} карточек в папке '{OUTPUT_DIR}'!")
 
+def _onKeyRelease(event):
+    ctrl = (event.state & 0x4) != 0
+    if event.keycode == 88 and ctrl and event.keysym.lower() != "x":
+        event.widget.event_generate("<<Cut>>")
+
+    if event.keycode == 86 and ctrl and event.keysym.lower() != "v":
+        event.widget.event_generate("<<Paste>>")
+
+    if event.keycode == 67 and ctrl and event.keysym.lower() != "c":
+        event.widget.event_generate("<<Copy>>")
+
 # --- Создание графического интерфейса (GUI) ---
 window = tk.Tk()
 window.title("Генератор Бинго")
 window.geometry("400x400")
+window.bind_all("<Key>", _onKeyRelease, "+")
 
 # Создаем главный фрейм (рамку) с отступами
 main_frame = tk.Frame(window, padx=10, pady=10)
@@ -194,7 +207,7 @@ entry_round = tk.Entry(main_frame)
 entry_round.pack(fill="x", pady=(0, 10))
 
 # Элементы для ввода фраз для бинго
-label_words = tk.Label(main_frame, text="Введите 25 фраз (через запятую, пробел или с новой строки):")
+label_words = tk.Label(main_frame, text="Введите 25 фраз (Каждая с новой строки):")
 label_words.pack(pady=(0, 5))
 text_words = tk.Text(main_frame, height=10)
 text_words.pack(fill="both", expand=True, pady=(0, 10))
