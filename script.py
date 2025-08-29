@@ -2,8 +2,7 @@ import os  # Модуль для взаимодействия с операци�
 import random  # Модуль для перемешивания элементов
 from pathlib import Path  # Модуль для удобной работы с путями к файлам
 import re  # Модуль для работы с регулярными выражениями
-import tkinter as tk 
-from tkinter import Entry # Библиотека для создания графического интерфейса
+import tkinter as tk  # Библиотека для создания графического интерфейса
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
 
 # --- Глобальные переменные и константы ---
@@ -91,10 +90,12 @@ def _get_user_inputs():
         messagebox.showerror("Ошибка", "Количество карточек и номер раунда должны быть целыми числами.")
         return None
 
-    words_raw = text_words.get("1.0", tk.END)
-    source_words = re.findall(r"\n", words_raw)
-    if len(source_words) != 25:
-        messagebox.showwarning("Внимание", f"Нужно ровно 25 фраз, а вы ввели {len(source_words)}.")
+    # Получаем текст из поля, убираем лишние пробелы по краям
+    words_raw = text_words.get("1.0", tk.END).strip()
+    # Разделяем на строки и отфильтровываем пустые, чтобы получить список фраз
+    source_words = [word for word in words_raw.split('\n') if word]
+    if len(source_words) < 25:
+        messagebox.showwarning("Внимание", f"Нужно минимум 25 фраз, а вы ввели {len(source_words)}.")
         return None
 
     return number_of_copies, number_of_round, source_words
@@ -104,7 +105,7 @@ def _generate_unique_layouts(words, count):
     Генерирует заданное количество уникальных, перемешанных раскладок карточек.
 
     Аргументы:
-        words (list): Список из 25 исходных фраз.
+        words (list): Список исходных фраз.
         count (int): Количество уникальных раскладок для генерации.
 
     Возвращает:
@@ -113,9 +114,9 @@ def _generate_unique_layouts(words, count):
     generated_cards = set()
     # Цикл работает, пока не будет создано нужное количество УНИКАЛЬНЫХ карточек
     while len(generated_cards) < count:
-        words_to_shuffle = words.copy()
-        random.shuffle(words_to_shuffle)
-        card_layout = tuple(words_to_shuffle)
+        words_for_one_card = random.sample(words, 25)
+        random.shuffle(words_for_one_card)
+        card_layout = tuple(words_for_one_card)
         generated_cards.add(card_layout)
     return list(generated_cards)
 
@@ -149,12 +150,9 @@ def create_bingo_files():
         return
     number_of_copies, number_of_round, source_words = user_inputs
 
-    # 2. Создание папки для сохранения карточек
-    try:
-        os.mkdir(OUTPUT_DIR)
-        print(f"Directory '{OUTPUT_DIR}' created successfully.")
-    except FileExistsError:
-        print(f"Directory '{OUTPUT_DIR}' already exists.")
+    # 2. Создание папки для сохранения карточек, если она не существует
+    Path(OUTPUT_DIR).mkdir(exist_ok=True)
+    print(f"Каталог '{OUTPUT_DIR}' готов к работе.")
 
     # 3. Генерация уникальных раскладок карточек
     layouts = _generate_unique_layouts(source_words, number_of_copies)
@@ -175,6 +173,10 @@ def create_bingo_files():
         messagebox.showinfo("Готово", f"Успешно создано {number_of_copies} карточек в папке '{OUTPUT_DIR}'!")
 
 def _onKeyRelease(event):
+    """
+    Обработчик событий клавиатуры для поддержки стандартных
+    сочетаний клавиш (Ctrl+C, Ctrl+V, Ctrl+X) на разных раскладках.
+    """
     ctrl = (event.state & 0x4) != 0
     if event.keycode == 88 and ctrl and event.keysym.lower() != "x":
         event.widget.event_generate("<<Cut>>")
@@ -201,13 +203,13 @@ label_copies.pack(pady=(0, 5))
 entry_copies = tk.Entry(main_frame)
 entry_copies.pack(fill="x", pady=(0, 10))
 # Элементы для ввода номера раунда
-round_number = tk.Label(main_frame, text="Номер раунда (1,2 или 3):")
+round_number = tk.Label(main_frame, text="Номер раунда (1, 2 или 3):")
 round_number.pack(pady=(0, 5))
 entry_round = tk.Entry(main_frame)
 entry_round.pack(fill="x", pady=(0, 10))
 
 # Элементы для ввода фраз для бинго
-label_words = tk.Label(main_frame, text="Введите 25 фраз (Каждая с новой строки):")
+label_words = tk.Label(main_frame, text="Введите 25 или более фраз (каждая с новой строки):")
 label_words.pack(pady=(0, 5))
 text_words = tk.Text(main_frame, height=10)
 text_words.pack(fill="both", expand=True, pady=(0, 10))
