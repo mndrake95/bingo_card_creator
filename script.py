@@ -4,21 +4,38 @@ from pathlib import Path  # Модуль для удобной работы с �
 import re  # Модуль для работы с регулярными выражениями
 import tkinter as tk  # Библиотека для создания графического интерфейса
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
+import base64
+
+BASE_DIR = Path(__file__).resolve().parent
+
+def _encode_file_to_base64(filepath):
+    try: 
+        with open(filepath, "rb") as f:
+            encoded_string = base64.b64encode(f.read()).decode('utf-8')
+    except IOError as e:
+        messagebox.showerror("Ошибка", f"Не удалось открыть файл {filepath}: {e}")
+        return None
+    mime_types = {
+        ".css": "text/css",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+    }
+    ext = Path(filepath).suffix
+    mime_type = mime_types.get(ext, "application/octet-stream")
+    return f"data:{mime_type};base64,{encoded_string}"
 
 # --- Глобальные переменные и константы ---
 # Списки с путями к изображениям для разных раундов
 OUTPUT_DIR = "output_cards"
-round_images = ["../assets/round1.png", "../assets/round2.png", "../assets/round3.png"]
-background_images = ["../assets/background1.png", "../assets/background2.png", "../assets/background3.png"]
 
-def _build_card_html(layout, round_image_path, background_image_path):
+def _build_card_html(layout, b64_data):
     """
     Создает HTML-код для одной карточки бинго на основе раскладки и путей к изображениям.
 
     Аргументы:
         layout (tuple): Кортеж из 25 фраз для размещения на карточке.
-        round_image_path (str): Путь к изображению номера раунда.
-        background_image_path (str): Путь к фоновому изображению.
+        b64_data (dict): Словарь с данными в base64 для встраивания в HTML.
 
     Возвращает:
         str: Готовая HTML-строка для карточки.
@@ -34,15 +51,15 @@ def _build_card_html(layout, round_image_path, background_image_path):
     <head>
         <meta charset="UTF-8">
         <title> Карточка бинго </title>
-        <link rel="stylesheet" href="../style.css">
+        <link rel="stylesheet" href="{b64_data['css']}">
     </head>
     <body>
-        <div class="whole-card" style="background-image: url('{background_image_path}');">
+        <div class="whole-card" style="background-image: url('{b64_data['background']}');">
             
             <div class="header">
-                <img src="../assets/rules.png" class="rules">
-                <img src="../assets/logo.png" class="logo">
-                <img src="{round_image_path}" class="tour-number">
+                <img src="{b64_data['rules']}" class="rules">
+                <img src="{b64_data['logo']}" class="logo">
+                <img src="{b64_data['round']}" class="tour-number">
             </div>
 
             <div class="main-grid">
@@ -53,13 +70,13 @@ def _build_card_html(layout, round_image_path, background_image_path):
 
             <div class="footer">
                 <div class="qr-code-stdup">
-                    <img src="../assets/qr-code-stdup.png">
+                    <img src="{b64_data['qr_stdup']}">
                 </div>
                 <div class="footer-contacts">
-                    <img src="../assets/contacts.png">
+                    <img src="{b64_data['contacts']}">
                 </div>
                 <div class="qr-code-muz">
-                    <img src="../assets/qr-code-muz.png">
+                    <img src="{b64_data['qr_code_muz']}">
                 </div>
             </div>
         </div>
@@ -83,8 +100,8 @@ def _get_user_inputs():
         if number_of_copies <= 0:
             messagebox.showerror("Ошибка", "Количество карточек должно быть положительным числом.")
             return None
-        if not (1 <= number_of_round <= len(round_images)):
-            messagebox.showerror("Ошибка", f"Номер раунда должен быть от 1 до {len(round_images)}.")
+        if not (1 <= number_of_round <= 3):
+            messagebox.showerror("Ошибка", "Номер раунда должен быть от 1 до 3.")
             return None
     except ValueError:
         messagebox.showerror("Ошибка", "Количество карточек и номер раунда должны быть целыми числами.")
@@ -158,12 +175,24 @@ def create_bingo_files():
     layouts = _generate_unique_layouts(source_words, number_of_copies)
 
     # 4. Создание и сохранение HTML-файлов
-    image_index = number_of_round - 1
-    round_image = round_images[image_index]
-    background_image = background_images[image_index]
+    round_image_b64 = _encode_file_to_base64(BASE_DIR / "assets" / f"round{number_of_round}.png")
+    background_image_b64 = _encode_file_to_base64(BASE_DIR / "assets" / f"background{number_of_round}.png")
+    css_b64 = _encode_file_to_base64(BASE_DIR / "style.css")
+    rules_b64 = _encode_file_to_base64(BASE_DIR / "assets" / "rules.png")
+    logo_b64 = _encode_file_to_base64(BASE_DIR / "assets" / "logo.png")
+    qr_stdup_b64 = _encode_file_to_base64(BASE_DIR / "assets" / "qr-code-stdup.png")
+    contacts_b64 = _encode_file_to_base64(BASE_DIR / "assets" / "contacts.png")
+    qr_muz_b64 = _encode_file_to_base64(BASE_DIR / "assets" / "qr-code-muz.png")
+
+    if not all([round_image_b64, background_image_b64, css_b64, rules_b64, logo_b64, qr_stdup_b64, contacts_b64, qr_muz_b64]):
+        return
 
     for i, layout in enumerate(layouts):
-        html_content = _build_card_html(layout, round_image, background_image)
+        b64_dict = {
+            "css": css_b64, "background": background_image_b64, "round": round_image_b64, "rules": rules_b64,
+            "logo": logo_b64, "qr_stdup": qr_stdup_b64, "contacts": contacts_b64, "qr_code_muz": qr_muz_b64
+        }
+        html_content = _build_card_html(layout, b64_dict)
         file_path = Path(OUTPUT_DIR) / f"card_{i + 1}.html"
         if not _save_html_file(html_content, file_path):
             break  # Прерываем цикл, если сохранение не удалось
