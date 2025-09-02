@@ -1,10 +1,9 @@
-import os  # Модуль для взаимодействия с операционной системой (создание папок)
+import os  # Модуль для взаимодействия с операционной системой
 import random  # Модуль для перемешивания элементов
 from pathlib import Path  # Модуль для удобной работы с путями к файлам
-import re  # Модуль для работы с регулярными выражениями
 import tkinter as tk  # Библиотека для создания графического интерфейса
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
-import base64
+import base64  # Модуль для кодирования данных в Base64
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -26,12 +25,12 @@ def _encode_file_to_base64(filepath):
     return f"data:{mime_type};base64,{encoded_string}"
 
 # --- Глобальные переменные и константы ---
-# Списки с путями к изображениям для разных раундов
+# Имя каталога для сохранения сгенерированных карточек
 OUTPUT_DIR = "output_cards"
 
 def _build_card_html(layout, b64_data):
     """
-    Создает HTML-код для одной карточки бинго на основе раскладки и путей к изображениям.
+    Создает HTML-код для одной карточки бинго на основе раскладки и данных в Base64.
 
     Аргументы:
         layout (tuple): Кортеж из 25 фраз для размещения на карточке.
@@ -156,7 +155,7 @@ def _save_html_file(content, path):
         messagebox.showerror("Ошибка", f"Не удалось сохранить файл {path}: {e}")
         return False
 
-# Основная функция, которая запускается при нажатии на кнопку
+# Основная функция, которая запускается при нажатии на кнопку "Создать карточки"
 def create_bingo_files():
     """
     Главная функция-координатор. Получает данные, генерирует карточки и сохраняет их.
@@ -175,6 +174,9 @@ def create_bingo_files():
     layouts = _generate_unique_layouts(source_words, number_of_copies)
 
     # 4. Создание и сохранение HTML-файлов
+    """
+    Делаем из картинок формат для адаптирования в HTML
+    """
     round_image_b64 = _encode_file_to_base64(BASE_DIR / "assets" / f"round{number_of_round}.png")
     background_image_b64 = _encode_file_to_base64(BASE_DIR / "assets" / f"background{number_of_round}.png")
     css_b64 = _encode_file_to_base64(BASE_DIR / "style.css")
@@ -203,7 +205,7 @@ def create_bingo_files():
 
 def _onKeyRelease(event):
     """
-    Обработчик событий клавиатуры для поддержки стандартных
+    Обработчик события отпускания клавиши для поддержки стандартных
     сочетаний клавиш (Ctrl+C, Ctrl+V, Ctrl+X) на разных раскладках.
     """
     ctrl = (event.state & 0x4) != 0
