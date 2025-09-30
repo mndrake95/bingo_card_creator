@@ -4,6 +4,7 @@ from pathlib import Path  # Модуль для удобной работы с �
 import tkinter as tk  # Библиотека для создания графического интерфейса
 from tkinter import messagebox  # Модуль для отображения всплывающих окон
 import base64  # Модуль для кодирования данных в Base64
+from weasyprint import HTML
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -136,9 +137,9 @@ def _generate_unique_layouts(words, count):
         generated_cards.add(card_layout)
     return list(generated_cards)
 
-def _save_html_file(content, path):
+def _save_pdf_file(content, path):
     """
-    Сохраняет HTML-содержимое в файл.
+    Сохраняет HTML-содержимое в PDF-файл.
 
     Аргументы:
         content (str): HTML-строка для сохранения.
@@ -148,11 +149,10 @@ def _save_html_file(content, path):
         bool: True в случае успеха, False в случае ошибки.
     """
     try:
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
+        HTML(string=content).write_pdf(path)
         return True
     except IOError as e:
-        messagebox.showerror("Ошибка", f"Не удалось сохранить файл {path}: {e}")
+        messagebox.showerror("Ошибка", f"Не удалось сохранить PDF-файл {path}: {e}")
         return False
 
 # Основная функция, которая запускается при нажатии на кнопку "Создать карточки"
@@ -195,13 +195,13 @@ def create_bingo_files():
             "logo": logo_b64, "qr_stdup": qr_stdup_b64, "contacts": contacts_b64, "qr_code_muz": qr_muz_b64
         }
         html_content = _build_card_html(layout, b64_dict)
-        file_path = Path(OUTPUT_DIR) / f"card_{i + 1}.html"
-        if not _save_html_file(html_content, file_path):
+        file_path = Path(OUTPUT_DIR) / f"card_{i + 1}.pdf"
+        if not _save_pdf_file(html_content, file_path):
             break  # Прерываем цикл, если сохранение не удалось
 
     else:  # Этот блок выполнится, если цикл завершился без 'break'
         # 5. Сообщение об успешном завершении
-        messagebox.showinfo("Готово", f"Успешно создано {number_of_copies} карточек в папке '{OUTPUT_DIR}'!")
+        messagebox.showinfo("Готово", f"Успешно создано {number_of_copies} PDF карточек в папке '{OUTPUT_DIR}'!")
 
 def _onKeyRelease(event):
     """

@@ -33,49 +33,41 @@
         background-position: center;
     }
     
-    /* --- Шапка --- */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 15px;
-    }
-    .rules-container {
-        width: 233px;
-        height: 84px;
-        top: 12px;
-        left: 13px;
-        display: flex;
-        gap: 5px;
-    }
-    
-    .rule-box {
-        width: 70px;
-        height: 80px;
-        border: 2px solid red; 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-weight: bold;
-    }
-    .logo {
-        width: 88.75px;
-        height: 61.69px;
-        top: 19.69px;
-        left: 261px;
-        color: #ffffff
-    }
-    .tour-number {
-        width: 41px;
-        height: 84px;
-        top: 12px;
-        left: 367px;
-        padding: 6px;
-        color: #FFB200;
-        font-weight: bold;
-        font-size: 20px;
-    }
+    /* --- Шапка (Абсолютное позиционирование) --- */
+.header {
+    position: relative; /* Делаем этот блок "холстом" для дочерних элементов */
+    padding: 10px 15px;
+    height: 100px; /* Задаем фиксированную высоту для шапки */
+}
+
+/* Добавляем стили для .rules, т.к. их не было */
+.rules {
+    position: absolute; /* Делаем "стикером" */
+    top: 12px;
+    left: 15px;
+    height: 84px; /* Предположительная высота, как у номера тура */
+}
+
+.logo {
+    position: absolute; /* Делаем "стикером" */
+    width: 88.75px;
+    height: 61.69px;
+    top: 19.69px;
+    /* Координата left из вашего первоначального кода */
+    left: 261px; 
+}
+
+.tour-number {
+    position: absolute; /* Делаем "стикером" */
+    width: 41px;
+    height: 84px;
+    top: 12px;
+    right: 15px; /* Прижимаем к правому краю */
+    padding: 6px;
+    color: #FFB200;
+    font-weight: bold;
+    font-size: 20px;
+}
 
     /* --- Основная сетка --- */
     .main-grid {
